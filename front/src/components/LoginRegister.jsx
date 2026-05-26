@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const BASE = "http://localhost:5000/api";
+const BASE = "https://agrotrace-25g0.onrender.com/api";
 
 const ROLES = ["FARMER", "MANUFACTURER", "DISTRIBUTOR", "RETAILER"];
 
