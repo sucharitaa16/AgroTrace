@@ -3775,7 +3775,7 @@ function PublicQRPreview({ showToast }) {
               }}
             >
               <QRCodeCanvas
-  value={`${window.location.origin}/scan/${history.productId}`}
+  value={`${window.location.origin}/scan/${history.product.productId}`}
   size={140}
   bgColor="#ffffff"
   fgColor="#000000"
