@@ -3981,6 +3981,9 @@ const load = async () => {
     link.click();
   };
 
+  const qrCodeUrl = `${window.location.origin}/scan/${history?.product?.productId || history?.productId || productId.trim()}`;
+console.log("Generated QR Code URL string:", qrCodeUrl);
+
   return (
     <div>
       <SectionHeader
@@ -4195,15 +4198,12 @@ const load = async () => {
               }}
             >
               <QRCodeCanvas
-  value={`${window.location.origin.replace(/\/$/, "")}/scan/${
-    history?.product?.productId || 
-    history?.productId || 
-    productId.trim()
-  }`}
-  size={140}
-  bgColor="#ffffff"
-  fgColor="#000000"
-  level="H"
+  value={qrCodeUrl}
+  size={160}          // Slightly larger size makes it much easier for laptop/phone cameras to decode
+  bgColor="#ffffff"   // High contrast pure white background
+  fgColor="#000000"   // High contrast pure black foreground
+  level="M"           // Changed from "H" to "M" (Medium error correction)
+  includeMargin={true} // Adds a clean white border around the QR so your phone cuts out background noise
 />
 
               <div style={{ fontSize: 11, color: "#666", textAlign: "center", wordBreak: "break-all" }}>
