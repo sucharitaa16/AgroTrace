@@ -3775,8 +3775,6 @@ function PublicQRPreview({ showToast }) {
               }}
             >
               <QRCodeCanvas
-  // value={`https://agrotrace.io/scan/${history.product?.productId}`}
-
   value={`${window.location.origin}/scan/${history.productId}`}
   size={140}
   bgColor="#ffffff"
