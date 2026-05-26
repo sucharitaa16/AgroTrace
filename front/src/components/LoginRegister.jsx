@@ -3953,25 +3953,22 @@ function PublicQRPreview({ showToast }) {
   // Fallback chain to securely grab the ID from nested database payloads
   const activeProductId = history?.product?.productId || history?.productId || "";
 
-  const load = async () => {
-    if (!productId.trim()) {
-      return showToast("Enter a Product ID to preview", "error");
-    }
-
-    setLoading(true);
-
-    try {
-      // FIX: Using relative endpoint routing to prevent base URL compounding issues
-      // If your api utility does not include "/api", adjust this string to "/api/products/history/..."
-      const data = await api(`/products/history/${productId.trim()}`);
-      
-      setHistory(data);
-    } catch (e) {
-      showToast(e.message || "Failed to fetch product history", "error");
-    }
-
-    setLoading(false);
-  };
+  
+const load = async () => {
+  if (!productId.trim()) return showToast("Enter an ID", "error");
+  setLoading(true);
+  try {
+    const data = await api(`/products/history/${productId.trim()}`);
+    console.log("Backend API Response Raw Data:", data); // 👈 CHECK THIS IN CONSOLE
+    
+    // If your console shows the actual data inside a .data property, change this to:
+    // setHistory(data.data);
+    setHistory(data); 
+  } catch (e) {
+    showToast(e.message, "error");
+  }
+  setLoading(false);
+};
 
   const downloadQRCard = async () => {
     if (!cardRef.current || !activeProductId) return;
@@ -4198,12 +4195,12 @@ function PublicQRPreview({ showToast }) {
               }}
             >
               <QRCodeCanvas
-                value={`${window.location.origin}/scan/${activeProductId}`}
-                size={140}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="H"
-              />
+  value={`${window.location.origin}/scan/${history?.product?.productId || history?.productId || productId}`}
+  size={140}
+  bgColor="#ffffff"
+  fgColor="#000000"
+  level="H"
+/>
 
               <div style={{ fontSize: 11, color: "#666", textAlign: "center", wordBreak: "break-all" }}>
                 {activeProductId}
