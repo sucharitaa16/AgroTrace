@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const BASE = "http://localhost:5000/api";
+const BASE = "https://agrotrace-25g0.onrender.com/api";
 
 const ROLES = ["FARMER", "MANUFACTURER", "DISTRIBUTOR", "RETAILER"];
 
@@ -60,6 +60,39 @@ const css = `
   @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.5 } }
   @keyframes notifPop { from { opacity:0; transform:scale(.92) translateY(-6px) } to { opacity:1; transform:scale(1) translateY(0) } }
   @keyframes barGrow { from { width: 0 } to { } }
+
+   /* ── Fix Google Translate Hidden Elements ── */
+
+/* Keep the element in the DOM but render it off-screen so Google can initialize safely */
+#google_translate_element {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+/* Force the body layout to stay at the top */
+body, body.translated-ltr, body.translated-rtl { 
+  top: 0 !important; 
+  position: static !important; 
+}
+
+/* Hard-hide the actual banner frames and popups */
+.goog-te-banner-frame,
+.goog-te-banner,
+.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame { 
+  display: none !important; 
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
 
   .fade-up  { animation: fadeUp  .45s cubic-bezier(.22,1,.36,1) both; }
   .fade-in  { animation: fadeIn  .3s ease both; }
