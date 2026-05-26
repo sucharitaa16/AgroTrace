@@ -3441,7 +3441,7 @@ function PublicQRPreview({ showToast }) {
 
     try {
       const data = await api(
-        `/products/history/${productId.trim()}`
+        `https://agrotrace-25g0.onrender.com/api/products/history/${productId.trim()}`
       );
 
       setHistory(data);
