@@ -14,85 +14,52 @@ export default function PublicScanPage() {
     const load = async () => {
       setLoading(true);
       setError(null);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000);
 
-      // Retry up to 2 times (helps with render.com cold starts)
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s
+        const res = await fetch(`${BASE}/products/history/${productId}`, {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        });
+        clearTimeout(timeoutId);
 
-          const res = await fetch(`${BASE}/products/history/${productId}`, {
-            signal: controller.signal,
-            headers: { "Accept": "application/json" },
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!res.ok) {
-            const text = await res.text();
-            console.error(`HTTP ${res.status}:`, text);
-            // If 404, no point retrying
-            if (res.status === 404) {
-              setProduct(null);
-              setError("not_found");
-              setLoading(false);
-              return;
-            }
-            if (attempt === 2) {
-              setProduct(null);
-              setError(`server_error_${res.status}`);
-              setLoading(false);
-              return;
-            }
-            // Wait 3s before retry
-            await new Promise(r => setTimeout(r, 3000));
-            continue;
-          }
-
-          const data = await res.json();
-          console.log("API RESPONSE:", data);
-
-          if (data?.product) {
-            setProduct(data.product);
-          } else if (data?.productId) {
-            setProduct(data);
-          } else {
-            setProduct(null);
-            setError("not_found");
-          }
-
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(`HTTP ${res.status}:`, text);
+          setError(res.status === 404 ? "not_found" : `server_error_${res.status}`);
           setLoading(false);
           return;
-
-        } catch (e) {
-          console.error(`Attempt ${attempt} failed:`, e);
-          if (e.name === "AbortError") {
-            setError("timeout");
-            setProduct(null);
-            setLoading(false);
-            return;
-          }
-          if (attempt === 2) {
-            setError("network_error");
-            setProduct(null);
-            setLoading(false);
-            return;
-          }
-          await new Promise(r => setTimeout(r, 3000));
         }
-      }
 
-      setLoading(false);
+        const data = await res.json();
+        console.log("API RESPONSE:", data);
+
+        if (data?.product) {
+          setProduct(data.product);
+        } else if (data?.productId) {
+          setProduct(data);
+        } else {
+          setError("not_found");
+        }
+      } catch (e) {
+        console.error(e);
+        setError(e.name === "AbortError" ? "timeout" : "network_error");
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (productId) load();
   }, [productId]);
 
   const statusMap = {
+    created:      { color: "#0369a1", bg: "#e0f2fe", border: "#bae6fd" },
     manufactured: { color: "#1d4ed8", bg: "#dbeafe", border: "#bfdbfe" },
     shipped:      { color: "#b45309", bg: "#fef3c7", border: "#fde68a" },
     "in transit": { color: "#6d28d9", bg: "#ede9fe", border: "#ddd6fe" },
     delivered:    { color: "#047857", bg: "#d1fae5", border: "#a7f3d0" },
+    verified:     { color: "#065f46", bg: "#ecfdf5", border: "#6ee7b7" },
   };
 
   const statusStyle = useMemo(() => {
@@ -115,15 +82,11 @@ export default function PublicScanPage() {
     minHeight: "100vh",
     background: "#f4f6f8",
     padding: "32px 16px",
-    fontFamily:
-      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
     color: "#111827",
   };
 
-  const containerStyle = {
-    maxWidth: 1100,
-    margin: "0 auto",
-  };
+  const containerStyle = { maxWidth: 1100, margin: "0 auto" };
 
   const panelStyle = {
     background: "#ffffff",
@@ -145,16 +108,11 @@ export default function PublicScanPage() {
       <div style={pageStyle}>
         <div style={centeredWrap}>
           <div style={{ textAlign: "center" }}>
-            <div
-              style={{
-                width: 42, height: 42,
-                margin: "0 auto 14px",
-                border: "3px solid #dbe3ea",
-                borderTop: "3px solid #1d4ed8",
-                borderRadius: "50%",
-                animation: "spin 0.9s linear infinite",
-              }}
-            />
+            <div style={{
+              width: 42, height: 42, margin: "0 auto 14px",
+              border: "3px solid #dbe3ea", borderTop: "3px solid #1d4ed8",
+              borderRadius: "50%", animation: "spin 0.9s linear infinite",
+            }} />
             <div style={{ fontSize: 18, fontWeight: 600, color: "#111827" }}>
               Verifying product record
             </div>
@@ -171,55 +129,32 @@ export default function PublicScanPage() {
     );
   }
 
-  // ── Error / Not found ────────────────────────────────────
+  // ── Error ────────────────────────────────────────────────
   if (!product) {
     const messages = {
-      not_found:    { title: "Product record not found",    body: "No verified blockchain history is available for this product ID." },
-      timeout:      { title: "Request timed out",           body: "The server took too long to respond. Please try again in a moment." },
-      network_error:{ title: "Network error",               body: "Could not reach the verification server. Check your connection and try again." },
+      not_found:     { title: "Product record not found",  body: "No verified blockchain history is available for this product ID." },
+      timeout:       { title: "Request timed out",          body: "The server took too long to respond. Please try again." },
+      network_error: { title: "Network error",              body: "Could not reach the verification server. Check your connection." },
     };
-    const key = error?.startsWith("server_error") ? "server_error" : error;
-    const msg = messages[key] || {
-      title: "Something went wrong",
-      body: `An unexpected error occurred${error ? ` (${error})` : ""}. Please try again.`,
-    };
+    const msg = messages[error] || { title: "Something went wrong", body: `Unexpected error${error ? ` (${error})` : ""}. Please try again.` };
 
     return (
       <div style={pageStyle}>
         <div style={centeredWrap}>
           <div style={{ ...panelStyle, width: "100%", maxWidth: 560, padding: 32, textAlign: "center" }}>
-            <div
-              style={{
-                width: 56, height: 56,
-                margin: "0 auto 16px",
-                borderRadius: 14,
-                background: "#f3f4f6",
-                display: "grid",
-                placeItems: "center",
-                fontSize: 22, fontWeight: 700, color: "#6b7280",
-              }}
-            >
-              !
-            </div>
+            <div style={{
+              width: 56, height: 56, margin: "0 auto 16px", borderRadius: 14,
+              background: "#fef2f2", display: "grid", placeItems: "center",
+              fontSize: 22, fontWeight: 700, color: "#dc2626",
+            }}>!</div>
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>{msg.title}</h1>
             <p style={{ marginTop: 10, color: "#6b7280", fontSize: 15 }}>{msg.body}</p>
             {error !== "not_found" && (
-              <button
-                onClick={() => window.location.reload()}
-                style={{
-                  marginTop: 20,
-                  padding: "10px 24px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: "#1d4ed8",
-                  color: "#fff",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Retry
-              </button>
+              <button onClick={() => window.location.reload()} style={{
+                marginTop: 20, padding: "10px 24px", borderRadius: 8,
+                border: "none", background: "#1d4ed8", color: "#fff",
+                fontSize: 14, fontWeight: 600, cursor: "pointer",
+              }}>Retry</button>
             )}
           </div>
         </div>
@@ -228,9 +163,12 @@ export default function PublicScanPage() {
   }
 
   // ── Product found ────────────────────────────────────────
+  const farmer = product.farmer;
+
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
+
         {/* Header */}
         <div style={{ ...panelStyle, padding: 24, marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -245,25 +183,18 @@ export default function PublicScanPage() {
                 Product traceability and chain-of-custody record
               </div>
             </div>
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: 999,
-                border: `1px solid ${statusStyle.border}`,
-                background: statusStyle.bg,
-                color: statusStyle.color,
-                fontSize: 12, fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <div style={{
+              padding: "8px 12px", borderRadius: 999,
+              border: `1px solid ${statusStyle.border}`,
+              background: statusStyle.bg, color: statusStyle.color,
+              fontSize: 12, fontWeight: 700, textTransform: "uppercase",
+              letterSpacing: "0.06em", whiteSpace: "nowrap",
+            }}>
               {product.status}
             </div>
           </div>
         </div>
 
-        {/* Body grid */}
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "start" }}>
 
           {/* Left column */}
@@ -271,23 +202,37 @@ export default function PublicScanPage() {
 
             {/* Product details */}
             <div style={{ ...panelStyle, padding: 24 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 18, color: "#111827" }}>
-                Product details
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 18, color: "#111827" }}>Product details</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18 }}>
                 <Field label="Product ID"     value={product.productId} mono />
-                <Field label="Category"       value={product.category  || "—"} />
+                <Field label="Product Name"   value={product.productName} />
+                <Field label="Category"       value={product.category || "—"} />
                 <Field label="Quantity"       value={product.quantity !== undefined ? `${product.quantity} units` : "—"} />
-                <Field label="Current Status" value={product.status    || "—"} />
+                <Field label="Current Status" value={product.status || "—"} />
+                <Field label="Owner Role"     value={product.currentOwnerRole || "—"} />
               </div>
             </div>
+
+            {/* Farmer info — shown if present */}
+            {farmer && (
+              <div style={{ ...panelStyle, padding: 24 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 18, color: "#111827" }}>Farmer information</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18 }}>
+                  <Field label="Farmer ID"       value={farmer.farmerId} mono />
+                  <Field label="Farm Location"   value={farmer.farmLocation || "—"} />
+                  <Field label="Crop Type"       value={farmer.cropType || "—"} />
+                  <Field label="Farming Method"  value={farmer.farmingMethod || "—"} />
+                  <Field label="Harvest Date"    value={farmer.harvestDate ? new Date(farmer.harvestDate).toLocaleDateString() : "—"} />
+                </div>
+              </div>
+            )}
 
             {/* Audit trail */}
             <div style={{ ...panelStyle, padding: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, gap: 12, flexWrap: "wrap" }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>Audit trail</div>
                 <div style={{ fontSize: 12, color: "#6b7280", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  {sortedHistory.length} events
+                  {sortedHistory.length} event{sortedHistory.length !== 1 ? "s" : ""}
                 </div>
               </div>
 
@@ -327,21 +272,41 @@ export default function PublicScanPage() {
 
           {/* Right column */}
           <div style={{ display: "grid", gap: 20 }}>
+
+            {/* Verification */}
             <div style={{ ...panelStyle, padding: 24 }}>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: "#111827" }}>Verification</div>
               <div style={{ display: "grid", gap: 14 }}>
-                <InfoRow label="Record status"   value="Verified"                        success />
-                <InfoRow label="Source"          value="Blockchain ledger"               />
-                <InfoRow label="Scanned product" value={product.productId || productId}  mono />
-                <InfoRow label="Scan time"       value={new Date().toLocaleString()}     />
+                <InfoRow label="Record status"    value="✓ Verified"                          success />
+                <InfoRow label="Blockchain"       value="Confirmed"                           success />
+                <InfoRow label="Source"           value="Blockchain ledger"                   />
+                <InfoRow label="Scanned product"  value={product.productId || productId}      mono />
+                <InfoRow label="Scan time"        value={new Date().toLocaleString()}         />
               </div>
             </div>
 
+            {/* Integrity hash */}
+            {product.integrityHash && (
+              <div style={{ ...panelStyle, padding: 24 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, color: "#111827" }}>Integrity hash</div>
+                <div style={{
+                  fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                  color: "#6b7280", wordBreak: "break-all", lineHeight: 1.6,
+                  background: "#f9fafb", borderRadius: 8, padding: "10px 12px",
+                  border: "1px solid #e5e7eb",
+                }}>
+                  {product.integrityHash}
+                </div>
+              </div>
+            )}
+
+            {/* Integrity note */}
             <div style={{ ...panelStyle, padding: 24 }}>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, color: "#111827" }}>Integrity note</div>
               <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "#6b7280" }}>
-                This page displays the registered lifecycle history associated with the scanned product identifier.
-                Each event represents a recorded supply chain handoff or status update.
+                This page displays the registered lifecycle history associated with the scanned
+                product identifier. Each event represents a recorded supply chain handoff or
+                status update, verified against the blockchain ledger.
               </p>
             </div>
           </div>
@@ -359,7 +324,11 @@ function Field({ label, value, mono = false }) {
       <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7280", marginBottom: 6 }}>
         {label}
       </div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "#111827", fontFamily: mono ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "inherit", wordBreak: "break-word" }}>
+      <div style={{
+        fontSize: 15, fontWeight: 600, color: "#111827",
+        fontFamily: mono ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "inherit",
+        wordBreak: "break-word",
+      }}>
         {value}
       </div>
     </div>
@@ -368,9 +337,17 @@ function Field({ label, value, mono = false }) {
 
 function InfoRow({ label, value, mono = false, success = false }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", paddingBottom: 10, borderBottom: "1px solid #eef2f7" }}>
+    <div style={{
+      display: "flex", justifyContent: "space-between", gap: 12,
+      alignItems: "flex-start", paddingBottom: 10, borderBottom: "1px solid #eef2f7",
+    }}>
       <span style={{ fontSize: 13, color: "#6b7280" }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: success ? "#047857" : "#111827", fontFamily: mono ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "inherit", textAlign: "right", wordBreak: "break-word" }}>
+      <span style={{
+        fontSize: 13, fontWeight: 600,
+        color: success ? "#047857" : "#111827",
+        fontFamily: mono ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "inherit",
+        textAlign: "right", wordBreak: "break-word",
+      }}>
         {value}
       </span>
     </div>
