@@ -4195,7 +4195,11 @@ const load = async () => {
               }}
             >
               <QRCodeCanvas
-  value={`${window.location.origin}/scan/${history?.product?.productId || history?.productId || productId}`}
+  value={`${window.location.origin.replace(/\/$/, "")}/scan/${
+    history?.product?.productId || 
+    history?.productId || 
+    productId.trim()
+  }`}
   size={140}
   bgColor="#ffffff"
   fgColor="#000000"
