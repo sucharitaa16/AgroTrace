@@ -12,13 +12,19 @@ export default function PublicScanPage() {
   useEffect(() => {
   const load = async () => {
     try {
-      const res = await fetch(
-        `${BASE}/products/history/${productId}`
-      );
+      const res = await fetch(`${BASE}/products/history/${productId}`, {
+        signal: AbortSignal.timeout(60000),
+      });
 
-      const data = await res.json();
+// Add this check:
+if (!res.ok) {
+  console.error("HTTP error:", res.status, await res.text());
+  setProduct(null);
+  return;
+}
 
-      console.log("API RESPONSE:", data);
+const data = await res.json();
+console.log("API RESPONSE:", data);
 
       // supports both:
       // { success:true, product:{} }
