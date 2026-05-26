@@ -301,7 +301,7 @@ exports.verifyTransfer =
         // Production URL
         const qr =
           await QRCode.toDataURL(
-            `http://localhost:5173/trace/${product.productId}`
+            `https://agro-trace-nine.vercel.app/trace/${product.productId}`
           );
 
         product.qrCode = qr;
