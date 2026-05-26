@@ -70,6 +70,38 @@ const css = `
     100% { opacity: 0; transform: translateY(-10px); }
   }
 
+  /* ── Fix Google Translate Hidden Elements ── */
+
+/* Keep the element in the DOM but render it off-screen so Google can initialize safely */
+#google_translate_element {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+/* Force the body layout to stay at the top */
+body, body.translated-ltr, body.translated-rtl { 
+  top: 0 !important; 
+  position: static !important; 
+}
+
+/* Hard-hide the actual banner frames and popups */
+.goog-te-banner-frame,
+.goog-te-banner,
+.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame { 
+  display: none !important; 
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
   .anim-fadeUp { animation: fadeUp .7s ease both; }
   .anim-fadeIn { animation: fadeIn .9s ease both; }
 
