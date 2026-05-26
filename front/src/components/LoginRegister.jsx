@@ -3422,6 +3422,527 @@ function NotificationFeed({ token, showToast }) {
 
 
 
+// function PublicQRPreview({ showToast }) {
+//   const [productId, setProductId] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [history, setHistory] = useState(null);
+
+//   const cardRef = useRef(null);
+
+//   const load = async () => {
+//     if (!productId.trim()) {
+//       return showToast(
+//         "Enter a Product ID to preview",
+//         "error"
+//       );
+//     }
+
+//     setLoading(true);
+
+//     try {
+//       const data = await api(`/products/history/${productId.trim()}`);
+
+//       setHistory(data);
+
+//     } catch (e) {
+
+//       showToast(e.message, "error");
+
+//     }
+
+//     setLoading(false);
+//   };
+
+//   const downloadQRCard = async () => {
+//     if (!cardRef.current) return;
+
+//     const canvas =
+//       await html2canvas(cardRef.current);
+
+//     const link =
+//       document.createElement("a");
+
+//     link.download =
+//       `${history.productId}-qr-card.png`;
+
+//     link.href =
+//       canvas.toDataURL("image/png");
+
+//     link.click();
+//   };
+
+//   return (
+//     <div>
+
+//       <SectionHeader
+//         icon={QrCode}
+//         title="QR Public Page Preview"
+//         subtitle="Preview exactly what a customer sees when they scan a product QR code"
+//       />
+
+//       <div
+//         style={{
+//           marginBottom:20,
+//           padding:"12px 16px",
+//           background:"#fef9ee",
+//           border:"1px solid rgba(201,168,76,.3)",
+//           borderRadius:"var(--radius-md)",
+//           display:"flex",
+//           gap:10,
+//           alignItems:"center"
+//         }}
+//       >
+//         <ExternalLink
+//           size={14}
+//           style={{
+//             color:"var(--gold)",
+//             flexShrink:0
+//           }}
+//         />
+
+//         <span
+//           style={{
+//             fontSize:13,
+//             color:"#7a6a40"
+//           }}
+//         >
+//           The public URL is
+
+//           <code
+//             style={{
+//               background:"rgba(0,0,0,.06)",
+//               padding:"2px 7px",
+//               borderRadius:4,
+//               fontSize:12
+//             }}
+//           >
+//             https://agro-trace-nine.vercel.app/scan/:productId
+//           </code>
+
+//           — no login required.
+//           This panel shows a live preview.
+//         </span>
+//       </div>
+
+//       <Card
+//         style={{
+//           maxWidth:480,
+//           marginBottom:24
+//         }}
+//       >
+//         <div
+//           style={{
+//             display:"flex",
+//             gap:10
+//           }}
+//         >
+//           <div style={{ flex:1 }}>
+//             <Input
+//               value={productId}
+//               onChange={setProductId}
+//               placeholder="Enter Product ID to preview…"
+//             />
+//           </div>
+
+//           <Btn
+//             onClick={load}
+//             loading={loading}
+//           >
+//             <QrCode size={15}/>
+//             Preview
+//           </Btn>
+//         </div>
+//       </Card>
+
+//       {history && (
+//         <div
+//           className="fade-up"
+//           ref={cardRef}
+//         >
+
+//           <div
+//             style={{
+//               background:
+//                 "linear-gradient(145deg, #0a1510 0%, #0f2218 50%, #0d1a1a 100%)",
+
+//               borderRadius:"var(--radius-lg)",
+
+//               padding:28,
+
+//               maxWidth:480,
+
+//               position:"relative",
+
+//               overflow:"hidden"
+//             }}
+//           >
+
+//             {/* background orbs */}
+
+//             <div
+//               style={{
+//                 position:"absolute",
+//                 width:200,
+//                 height:200,
+//                 borderRadius:"50%",
+//                 background:"var(--green)",
+                
+//                 top:-60,
+//                 left:-60,
+//                 filter:"blur(60px)",
+//                 opacity:.15,
+//                 pointerEvents:"none"
+//               }}
+//             />
+
+//             <div
+//               style={{
+//                 position:"absolute",
+//                 width:150,
+//                 height:150,
+//                 borderRadius:"50%",
+//                 background:"var(--gold)",
+//                 bottom:-40,
+//                 right:-40,
+//                 filter:"blur(60px)",
+//                 opacity:.12,
+//                 pointerEvents:"none"
+//               }}
+//             />
+
+//             {/* header */}
+
+//             <div
+//               style={{
+//                 display:"flex",
+//                 alignItems:"center",
+//                 gap:10,
+//                 marginBottom:22
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   background:
+//                     "linear-gradient(135deg, var(--green), var(--green-l))",
+
+//                   borderRadius:"var(--radius-sm)",
+
+//                   padding:8
+//                 }}
+//               >
+//                 <Leaf
+//                   style={{
+//                     width:16,
+//                     height:16,
+//                     color:"#fff"
+//                   }}
+//                 />
+//               </div>
+
+//               <span
+//                 className="serif"
+//                 style={{
+//                   fontSize:19,
+//                   fontWeight:600,
+//                   color:"#fff"
+//                 }}
+//               >
+//                 Agro
+//                 <span
+//                   style={{
+//                     color:"var(--gold)"
+//                   }}
+//                 >
+//                   Trace
+//                 </span>
+//               </span>
+
+//               <span
+//                 style={{
+//                   marginLeft:"auto",
+//                   fontSize:10,
+//                   color:"rgba(255,255,255,.3)",
+//                   letterSpacing:".05em"
+//                 }}
+//               >
+//                 VERIFIED
+//               </span>
+//             </div>
+
+//             {/* product card */}
+
+//             <div
+//               style={{
+//                 background:"rgba(255,255,255,.05)",
+
+//                 borderRadius:"var(--radius-md)",
+
+//                 padding:"14px 16px",
+
+//                 marginBottom:16,
+
+//                 backdropFilter:"blur(4px)",
+
+//                 border:"1px solid rgba(255,255,255,.07)"
+//               }}
+//             >
+
+//               <div
+//                 style={{
+//                   fontSize:10,
+//                   color:"rgba(255,255,255,.4)",
+//                   letterSpacing:".08em",
+//                   marginBottom:6
+//                 }}
+//               >
+//                 PRODUCT
+//               </div>
+
+//               <div
+//                 className="serif"
+//                 style={{
+//                   fontSize:22,
+//                   color:"#fff",
+//                   fontWeight:600
+//                 }}
+//               >
+//                 {history.productName || history.name}
+//               </div>
+
+//               {/* product id */}
+
+//               <div
+//                 style={{
+//                   marginTop:10,
+//                   fontSize:12,
+//                   color:"rgba(255,255,255,.65)"
+//                 }}
+//               >
+//                 Product ID: {history.productId}
+//               </div>
+
+//               <div
+//                 style={{
+//                   display:"flex",
+//                   gap:8,
+//                   marginTop:8,
+//                   flexWrap:"wrap"
+//                 }}
+//               >
+//                 <span
+//                   style={{
+//                     background:"rgba(45,106,79,.35)",
+//                     color:"#4ade80",
+//                     borderRadius:20,
+//                     padding:"3px 10px",
+//                     fontSize:11,
+//                     fontWeight:700
+//                   }}
+//                 >
+//                   {history.category}
+//                 </span>
+
+//                 <span
+//                   style={{
+//                     color:"rgba(255,255,255,.92)",
+//                     fontSize:12,
+//                     fontWeight:500
+//                   }}
+//                 >
+//                   {history?.quantity ??
+//                     history?.product?.quantity ??
+//                     history?.farmer?.quantity ??
+//                     "0"} units
+//                 </span>
+//               </div>
+//             </div>
+
+//             {/* fake qr preview */}
+
+//             <div
+//               style={{
+//                 background:"#fff",
+//                 borderRadius:"var(--radius-md)",
+//                 padding:20,
+//                 width:170,
+//                 margin:"0 auto 20px",
+//                 display:"flex",
+//                 flexDirection:"column",
+//                 alignItems:"center",
+//                 gap:10
+//               }}
+//             >
+//               <QRCodeCanvas
+//   value={`${window.location.origin}/scan/${history.product.productId}`}
+//   size={140}
+//   bgColor="#ffffff"
+//   fgColor="#000000"
+//   level="H"
+// />
+
+//               <div
+//                 style={{
+//                   fontSize:11,
+//                   color:"#666",
+//                   textAlign:"center",
+//                   wordBreak:"break-all"
+//                 }}
+//               >
+//                 {history.productId}
+//               </div>
+//             </div>
+
+//             {/* journey */}
+
+//             {[
+//               {
+//                 role:"FARMER",
+//                 icon:"🌱",
+//                 label:"Farmed by",
+//                 value:history.farmer?.farmLocation,
+//                 sub:history.farmer?.farmingMethod
+//               },
+
+//               {
+//                 role:"MANUFACTURER",
+//                 icon:"🏭",
+//                 label:"Manufactured",
+//                 value:history.manufacturer?.factoryLocation,
+//                 sub:history.manufacturer?.packagingType
+//               },
+
+//               {
+//                 role:"DISTRIBUTOR",
+//                 icon:"🚚",
+//                 label:"Distributed via",
+//                 value:history.distributor?.warehouseLocation,
+//                 sub:history.distributor?.transportMethod
+//               },
+
+//               {
+//                 role:"RETAILER",
+//                 icon:"🏪",
+//                 label:"Retailed at",
+//                 value:history.retailer?.storeLocation,
+//                 sub:history.retailer?.retailPrice
+//                   ? `₹${history.retailer.retailPrice}`
+//                   : null
+//               },
+
+//             ].map((s,i)=>(
+
+//               s.value ? (
+
+//                 <div
+//                   key={i}
+//                   style={{
+//                     display:"flex",
+//                     gap:12,
+//                     alignItems:"flex-start",
+//                     marginBottom:12
+//                   }}
+//                 >
+
+//                   <span
+//                     style={{
+//                       fontSize:20,
+//                       flexShrink:0,
+//                       width:32,
+//                       textAlign:"center"
+//                     }}
+//                   >
+//                     {s.icon}
+//                   </span>
+
+//                   <div
+//                     style={{
+//                       background:"rgba(255,255,255,.04)",
+//                       borderRadius:"var(--radius-sm)",
+//                       padding:"10px 14px",
+//                       flex:1,
+//                       border:"1px solid rgba(255,255,255,.06)"
+//                     }}
+//                   >
+
+//                     <div
+//                       style={{
+//                         fontSize:10,
+//                         color:"rgba(255,255,255,.35)",
+//                         letterSpacing:".06em",
+//                         marginBottom:3
+//                       }}
+//                     >
+//                       {s.label.toUpperCase()}
+//                     </div>
+
+//                     <div
+//                       style={{
+//                         fontSize:13,
+//                         color:"#fff",
+//                         fontWeight:600
+//                       }}
+//                     >
+//                       {s.value}
+//                     </div>
+
+//                     {s.sub && (
+//                       <div
+//                         style={{
+//                           fontSize:11,
+//                           color:"rgba(255,255,255,.4)",
+//                           marginTop:2
+//                         }}
+//                       >
+//                         {s.sub}
+//                       </div>
+//                     )}
+
+//                   </div>
+
+//                 </div>
+
+//               ) : null
+
+//             ))}
+
+//             {/* download button */}
+
+//             <div
+//               style={{
+//                 marginTop:24,
+//                 display:"flex",
+//                 justifyContent:"center"
+//               }}
+//             >
+//               <Btn
+//                 onClick={downloadQRCard}
+//                 variant="outline"
+//                 small
+//               >
+//                 Download QR Card
+//               </Btn>
+//             </div>
+
+//             <div
+//               style={{
+//                 textAlign:"center",
+//                 marginTop:20,
+//                 fontSize:11,
+//                 color:"rgba(255,255,255,.2)"
+//               }}
+//             >
+//               Farm to shelf · Verified on blockchain
+//             </div>
+
+//           </div>
+
+//         </div>
+//       )}
+
+//     </div>
+//   );
+// }
+
 function PublicQRPreview({ showToast }) {
   const [productId, setProductId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -3429,53 +3950,42 @@ function PublicQRPreview({ showToast }) {
 
   const cardRef = useRef(null);
 
-  const load = async () => {
-    if (!productId.trim()) {
-      return showToast(
-        "Enter a Product ID to preview",
-        "error"
-      );
-    }
+  // Fallback chain to securely grab the ID from nested database payloads
+  const activeProductId = history?.product?.productId || history?.productId || "";
 
-    setLoading(true);
-
-    try {
-      const data = await api(
-        `https://agrotrace-25g0.onrender.com/api/products/history/${productId.trim()}`
-      );
-
-      setHistory(data);
-
-    } catch (e) {
-
-      showToast(e.message, "error");
-
-    }
-
-    setLoading(false);
-  };
+  
+const load = async () => {
+  if (!productId.trim()) return showToast("Enter an ID", "error");
+  setLoading(true);
+  try {
+    const data = await api(`/products/history/${productId.trim()}`);
+    console.log("Backend API Response Raw Data:", data); // 👈 CHECK THIS IN CONSOLE
+    
+    // If your console shows the actual data inside a .data property, change this to:
+    // setHistory(data.data);
+    setHistory(data); 
+  } catch (e) {
+    showToast(e.message, "error");
+  }
+  setLoading(false);
+};
 
   const downloadQRCard = async () => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || !activeProductId) return;
 
-    const canvas =
-      await html2canvas(cardRef.current);
+    const canvas = await html2canvas(cardRef.current);
+    const link = document.createElement("a");
 
-    const link =
-      document.createElement("a");
-
-    link.download =
-      `${history.productId}-qr-card.png`;
-
-    link.href =
-      canvas.toDataURL("image/png");
-
+    link.download = `${activeProductId}-qr-card.png`;
+    link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
+  const qrCodeUrl = `${window.location.origin}/scan/${history?.product?.productId || history?.productId || productId.trim()}`;
+console.log("Generated QR Code URL string:", qrCodeUrl);
+
   return (
     <div>
-
       <SectionHeader
         icon={QrCode}
         title="QR Public Page Preview"
@@ -3484,61 +3994,43 @@ function PublicQRPreview({ showToast }) {
 
       <div
         style={{
-          marginBottom:20,
-          padding:"12px 16px",
-          background:"#fef9ee",
-          border:"1px solid rgba(201,168,76,.3)",
-          borderRadius:"var(--radius-md)",
-          display:"flex",
-          gap:10,
-          alignItems:"center"
+          marginBottom: 20,
+          padding: "12px 16px",
+          background: "#fef9ee",
+          border: "1px solid rgba(201,168,76,.3)",
+          borderRadius: "var(--radius-md)",
+          display: "flex",
+          gap: 10,
+          alignItems: "center"
         }}
       >
         <ExternalLink
           size={14}
           style={{
-            color:"var(--gold)",
-            flexShrink:0
+            color: "var(--gold)",
+            flexShrink: 0
           }}
         />
 
-        <span
-          style={{
-            fontSize:13,
-            color:"#7a6a40"
-          }}
-        >
-          The public URL is
-
+        <span style={{ fontSize: 13, color: "#7a6a40" }}>
+          The public URL is{" "}
           <code
             style={{
-              background:"rgba(0,0,0,.06)",
-              padding:"2px 7px",
-              borderRadius:4,
-              fontSize:12
+              background: "rgba(0,0,0,.06)",
+              padding: "2px 7px",
+              borderRadius: 4,
+              fontSize: 12
             }}
           >
             https://agro-trace-nine.vercel.app/scan/:productId
-          </code>
-
-          — no login required.
-          This panel shows a live preview.
+          </code>{" "}
+          — no login required. This panel shows a live preview.
         </span>
       </div>
 
-      <Card
-        style={{
-          maxWidth:480,
-          marginBottom:24
-        }}
-      >
-        <div
-          style={{
-            display:"flex",
-            gap:10
-          }}
-        >
-          <div style={{ flex:1 }}>
+      <Card style={{ maxWidth: 480, marginBottom: 24 }}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ flex: 1 }}>
             <Input
               value={productId}
               onChange={setProductId}
@@ -3546,125 +4038,88 @@ function PublicQRPreview({ showToast }) {
             />
           </div>
 
-          <Btn
-            onClick={load}
-            loading={loading}
-          >
-            <QrCode size={15}/>
+          <Btn onClick={load} loading={loading}>
+            <QrCode size={15} />
             Preview
           </Btn>
         </div>
       </Card>
 
       {history && (
-        <div
-          className="fade-up"
-          ref={cardRef}
-        >
-
+        <div className="fade-up" ref={cardRef}>
           <div
             style={{
-              background:
-                "linear-gradient(145deg, #0a1510 0%, #0f2218 50%, #0d1a1a 100%)",
-
-              borderRadius:"var(--radius-lg)",
-
-              padding:28,
-
-              maxWidth:480,
-
-              position:"relative",
-
-              overflow:"hidden"
+              background: "linear-gradient(145deg, #0a1510 0%, #0f2218 50%, #0d1a1a 100%)",
+              borderRadius: "var(--radius-lg)",
+              padding: 28,
+              maxWidth: 480,
+              position: "relative",
+              overflow: "hidden"
             }}
           >
-
             {/* background orbs */}
-
             <div
               style={{
-                position:"absolute",
-                width:200,
-                height:200,
-                borderRadius:"50%",
-                background:"var(--green)",
-                
-                top:-60,
-                left:-60,
-                filter:"blur(60px)",
-                opacity:.15,
-                pointerEvents:"none"
+                position: "absolute",
+                width: 200,
+                height: 200,
+                borderRadius: "50%",
+                background: "var(--green)",
+                top: -60,
+                left: -60,
+                filter: "blur(60px)",
+                opacity: .15,
+                pointerEvents: "none"
               }}
             />
 
             <div
               style={{
-                position:"absolute",
-                width:150,
-                height:150,
-                borderRadius:"50%",
-                background:"var(--gold)",
-                bottom:-40,
-                right:-40,
-                filter:"blur(60px)",
-                opacity:.12,
-                pointerEvents:"none"
+                position: "absolute",
+                width: 150,
+                height: 150,
+                borderRadius: "50%",
+                background: "var(--gold)",
+                bottom: -40,
+                right: -40,
+                filter: "blur(60px)",
+                opacity: .12,
+                pointerEvents: "none"
               }}
             />
 
             {/* header */}
-
             <div
               style={{
-                display:"flex",
-                alignItems:"center",
-                gap:10,
-                marginBottom:22
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 22
               }}
             >
               <div
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--green), var(--green-l))",
-
-                  borderRadius:"var(--radius-sm)",
-
-                  padding:8
+                  background: "linear-gradient(135deg, var(--green), var(--green-l))",
+                  borderRadius: "var(--radius-sm)",
+                  padding: 8
                 }}
               >
-                <Leaf
-                  style={{
-                    width:16,
-                    height:16,
-                    color:"#fff"
-                  }}
-                />
+                <Leaf style={{ width: 16, height: 16, color: "#fff" }} />
               </div>
 
               <span
                 className="serif"
-                style={{
-                  fontSize:19,
-                  fontWeight:600,
-                  color:"#fff"
-                }}
+                style={{ fontSize: 19, fontWeight: 600, color: "#fff" }}
               >
-                Agro
-                <span
-                  style={{
-                    color:"var(--gold)"
-                  }}
-                >
-                  Trace
-                </span>
+                Agro<span style={{ color: "var(--gold)" }}>Trace</span>
               </span>
 
               <span
                 style={{
-                  marginLeft:"auto",
-                  fontSize:10,
-                  color:"rgba(255,255,255,.3)",
-                  letterSpacing:".05em"
+                  marginLeft: "auto",
+                  fontSize: 10,
+                  color: "rgba(255,255,255,.3)",
+                  letterSpacing: ".05em"
                 }}
               >
                 VERIFIED
@@ -3672,29 +4127,22 @@ function PublicQRPreview({ showToast }) {
             </div>
 
             {/* product card */}
-
             <div
               style={{
-                background:"rgba(255,255,255,.05)",
-
-                borderRadius:"var(--radius-md)",
-
-                padding:"14px 16px",
-
-                marginBottom:16,
-
-                backdropFilter:"blur(4px)",
-
-                border:"1px solid rgba(255,255,255,.07)"
+                background: "rgba(255,255,255,.05)",
+                borderRadius: "var(--radius-md)",
+                padding: "14px 16px",
+                marginBottom: 16,
+                backdropFilter: "blur(4px)",
+                border: "1px solid rgba(255,255,255,.07)"
               }}
             >
-
               <div
                 style={{
-                  fontSize:10,
-                  color:"rgba(255,255,255,.4)",
-                  letterSpacing:".08em",
-                  marginBottom:6
+                  fontSize: 10,
+                  color: "rgba(255,255,255,.4)",
+                  letterSpacing: ".08em",
+                  marginBottom: 6
                 }}
               >
                 PRODUCT
@@ -3702,250 +4150,147 @@ function PublicQRPreview({ showToast }) {
 
               <div
                 className="serif"
-                style={{
-                  fontSize:22,
-                  color:"#fff",
-                  fontWeight:600
-                }}
+                style={{ fontSize: 22, color: "#fff", fontWeight: 600 }}
               >
-                {history.productName || history.name}
+                {history.productName || history.name || history.product?.name}
               </div>
 
-              {/* product id */}
-
-              <div
-                style={{
-                  marginTop:10,
-                  fontSize:12,
-                  color:"rgba(255,255,255,.65)"
-                }}
-              >
-                Product ID: {history.productId}
+              <div style={{ marginTop: 10, fontSize: 12, color: "rgba(255,255,255,.65)" }}>
+                Product ID: {activeProductId}
               </div>
 
-              <div
-                style={{
-                  display:"flex",
-                  gap:8,
-                  marginTop:8,
-                  flexWrap:"wrap"
-                }}
-              >
+              <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                 <span
                   style={{
-                    background:"rgba(45,106,79,.35)",
-                    color:"#4ade80",
-                    borderRadius:20,
-                    padding:"3px 10px",
-                    fontSize:11,
-                    fontWeight:700
+                    background: "rgba(45,106,79,.35)",
+                    color: "#4ade80",
+                    borderRadius: 20,
+                    padding: "3px 10px",
+                    fontSize: 11,
+                    fontWeight: 700
                   }}
                 >
-                  {history.category}
+                  {history.category || history.product?.category}
                 </span>
 
-                <span
-                  style={{
-                    color:"rgba(255,255,255,.92)",
-                    fontSize:12,
-                    fontWeight:500
-                  }}
-                >
+                <span style={{ color: "rgba(255,255,255,.92)", fontSize: 12, fontWeight: 500 }}>
                   {history?.quantity ??
                     history?.product?.quantity ??
                     history?.farmer?.quantity ??
-                    "0"} units
+                    "0"}{" "}
+                  units
                 </span>
               </div>
             </div>
 
-            {/* fake qr preview */}
-
+            {/* qr preview */}
             <div
               style={{
-                background:"#fff",
-                borderRadius:"var(--radius-md)",
-                padding:20,
-                width:170,
-                margin:"0 auto 20px",
-                display:"flex",
-                flexDirection:"column",
-                alignItems:"center",
-                gap:10
+                background: "#fff",
+                borderRadius: "var(--radius-md)",
+                padding: 20,
+                width: 170,
+                margin: "0 auto 20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10
               }}
             >
               <QRCodeCanvas
-  value={`${window.location.origin}/scan/${history.product.productId}`}
-  size={140}
-  bgColor="#ffffff"
-  fgColor="#000000"
-  level="H"
+  value={qrCodeUrl}
+  size={160}          // Slightly larger size makes it much easier for laptop/phone cameras to decode
+  bgColor="#ffffff"   // High contrast pure white background
+  fgColor="#000000"   // High contrast pure black foreground
+  level="M"           // Changed from "H" to "M" (Medium error correction)
+  includeMargin={true} // Adds a clean white border around the QR so your phone cuts out background noise
 />
 
-              <div
-                style={{
-                  fontSize:11,
-                  color:"#666",
-                  textAlign:"center",
-                  wordBreak:"break-all"
-                }}
-              >
-                {history.productId}
+              <div style={{ fontSize: 11, color: "#666", textAlign: "center", wordBreak: "break-all" }}>
+                {activeProductId}
               </div>
             </div>
 
-            {/* journey */}
-
+            {/* journey updates mapping */}
             {[
               {
-                role:"FARMER",
-                icon:"🌱",
-                label:"Farmed by",
-                value:history.farmer?.farmLocation,
-                sub:history.farmer?.farmingMethod
+                role: "FARMER",
+                icon: "🌱",
+                label: "Farmed by",
+                value: history.farmer?.farmLocation,
+                sub: history.farmer?.farmingMethod
               },
-
               {
-                role:"MANUFACTURER",
-                icon:"🏭",
-                label:"Manufactured",
-                value:history.manufacturer?.factoryLocation,
-                sub:history.manufacturer?.packagingType
+                role: "MANUFACTURER",
+                icon: "🏭",
+                label: "Manufactured",
+                value: history.manufacturer?.factoryLocation,
+                sub: history.manufacturer?.packagingType
               },
-
               {
-                role:"DISTRIBUTOR",
-                icon:"🚚",
-                label:"Distributed via",
-                value:history.distributor?.warehouseLocation,
-                sub:history.distributor?.transportMethod
+                role: "DISTRIBUTOR",
+                icon: "🚚",
+                label: "Distributed via",
+                value: history.distributor?.warehouseLocation,
+                sub: history.distributor?.transportMethod
               },
-
               {
-                role:"RETAILER",
-                icon:"🏪",
-                label:"Retailed at",
-                value:history.retailer?.storeLocation,
-                sub:history.retailer?.retailPrice
-                  ? `₹${history.retailer.retailPrice}`
-                  : null
-              },
-
-            ].map((s,i)=>(
-
+                role: "RETAILER",
+                icon: "🏪",
+                label: "Retailed at",
+                value: history.retailer?.storeLocation,
+                sub: history.retailer?.retailPrice ? `₹${history.retailer.retailPrice}` : null
+              }
+            ].map((s, i) =>
               s.value ? (
-
-                <div
-                  key={i}
-                  style={{
-                    display:"flex",
-                    gap:12,
-                    alignItems:"flex-start",
-                    marginBottom:12
-                  }}
-                >
-
-                  <span
-                    style={{
-                      fontSize:20,
-                      flexShrink:0,
-                      width:32,
-                      textAlign:"center"
-                    }}
-                  >
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
+                  <span style={{ fontSize: 20, flexShrink: 0, width: 32, textAlign: "center" }}>
                     {s.icon}
                   </span>
 
                   <div
                     style={{
-                      background:"rgba(255,255,255,.04)",
-                      borderRadius:"var(--radius-sm)",
-                      padding:"10px 14px",
-                      flex:1,
-                      border:"1px solid rgba(255,255,255,.06)"
+                      background: "rgba(255,255,255,.04)",
+                      borderRadius: "var(--radius-sm)",
+                      padding: "10px 14px",
+                      flex: 1,
+                      border: "1px solid rgba(255,255,255,.06)"
                     }}
                   >
-
-                    <div
-                      style={{
-                        fontSize:10,
-                        color:"rgba(255,255,255,.35)",
-                        letterSpacing:".06em",
-                        marginBottom:3
-                      }}
-                    >
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,.35)", letterSpacing: ".06em", marginBottom: 3 }}>
                       {s.label.toUpperCase()}
                     </div>
 
-                    <div
-                      style={{
-                        fontSize:13,
-                        color:"#fff",
-                        fontWeight:600
-                      }}
-                    >
+                    <div style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
                       {s.value}
                     </div>
 
                     {s.sub && (
-                      <div
-                        style={{
-                          fontSize:11,
-                          color:"rgba(255,255,255,.4)",
-                          marginTop:2
-                        }}
-                      >
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", marginTop: 2 }}>
                         {s.sub}
                       </div>
                     )}
-
                   </div>
-
                 </div>
-
               ) : null
+            )}
 
-            ))}
-
-            {/* download button */}
-
-            <div
-              style={{
-                marginTop:24,
-                display:"flex",
-                justifyContent:"center"
-              }}
-            >
-              <Btn
-                onClick={downloadQRCard}
-                variant="outline"
-                small
-              >
+            {/* download action */}
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+              <Btn onClick={downloadQRCard} variant="outline" small>
                 Download QR Card
               </Btn>
             </div>
 
-            <div
-              style={{
-                textAlign:"center",
-                marginTop:20,
-                fontSize:11,
-                color:"rgba(255,255,255,.2)"
-              }}
-            >
+            <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,.2)" }}>
               Farm to shelf · Verified on blockchain
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }
-
-
 
 
 
