@@ -10,26 +10,48 @@ export default function PublicScanPage() {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch(`${BASE}/products/history/${productId}`);
-        const data = await res.json();
+  const load = async () => {
+    try {
+      const res = await fetch(
+        `${BASE}/products/history/${productId}`
+      );
 
-        if (data.success && data.product) {
-          setProduct(data.product);
-        } else {
-          setProduct(null);
-        }
-      } catch (e) {
-        console.error(e);
+      const data = await res.json();
+
+      console.log("API RESPONSE:", data);
+
+      // supports both:
+      // { success:true, product:{} }
+      // and direct product object {}
+
+      if (data?.product) {
+        setProduct(data.product);
+
+      } else if (data?.productId) {
+
+        setProduct(data);
+
+      } else {
+
         setProduct(null);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    load();
-  }, [productId]);
+      }
+
+    } catch (e) {
+
+      console.error(e);
+      setProduct(null);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  load();
+
+}, [productId]);
 
   const statusMap = {
     manufactured: { color: "#1d4ed8", bg: "#dbeafe", border: "#bfdbfe" },
