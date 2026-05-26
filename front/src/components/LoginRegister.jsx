@@ -3518,7 +3518,7 @@ function PublicQRPreview({ showToast }) {
               fontSize:12
             }}
           >
-            https://agrotrace.io/scan/:productId
+            https://agro-trace-nine.vercel.app/scan/:productId
           </code>
 
           — no login required.
